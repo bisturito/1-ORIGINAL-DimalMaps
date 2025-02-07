@@ -1,0 +1,86 @@
+/* www/custom.css */
+body {
+     font-family: 'Raleway', sans-serif;
+     background-color: var(--light-color);
+   }
+   
+   .main-header .logo {
+     background-color: var(--primary-color) !important;
+     color: #fff;
+     font-weight: 700;
+   }
+   
+   .main-header .navbar {
+     background-color: var(--primary-color) !important;
+   }
+   
+   .skin-blue .main-sidebar {
+     background-color: var(--primary-color);
+   }
+   
+   .skin-blue .main-sidebar .sidebar-menu > li > a {
+     color: var(--secondary-color);
+   }
+   
+   .skin-blue .main-sidebar .sidebar-menu .active > a {
+     background-color: var(--secondary-color);
+     color: #fff;
+   }
+   
+   .btn-default {
+     background-color: var(--secondary-color);
+     border-color: var(--secondary-color);
+     color: #fff;
+   }
+   
+   .box {
+     border-top-color: var(--secondary-color);
+   }
+   
+   /* Modo oscuro */
+   .dark-mode {
+     background-color: var(--dark-color) !important;
+     color: #fff !important;
+   }
+   
+   .dark-mode .box, 
+   .dark-mode .navbar, 
+   .dark-mode .logo {
+     background-color: var(--dark-color) !important;
+   }
+   
+   .dark-mode .sidebar-menu > li > a {
+     color: #fff !important;
+   }
+   
+   .dark-mode .main-sidebar {
+     background-color: var(--dark-color) !important;
+   }
+   
+   .dark-mode h3 {
+     color: var(--secondary-color) !important;
+   }
+   
+   .dark-mode body {
+     background-color: var(--dark-color) !important;
+   }
+   
+   .dark-mode .dataTables_wrapper {
+     background-color: #333 !important;
+     color: #fff !important;
+   }
+   
+   .dark-mode .leaflet-container {
+     background-color: #333 !important;
+   }
+   
+   .dark-mode .btn-default {
+     background-color: var(--dark-color) !important;
+     color: var(--secondary-color) !important;
+   }
+   
+   .dark-mode .shiny-date-input,
+   .dark-mode .shiny-date-input input {
+     background-color: #fff !important;
+     color: var(--dark-color) !important;
+   }
