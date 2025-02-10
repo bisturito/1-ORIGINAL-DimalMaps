@@ -6,37 +6,22 @@
 #=============================================================
 # ! Cargar archivo de configuración
 source("CONFIG.R")
-<<<<<<< HEAD
 
-#=================================================================
-# ! FUNCIÓN SEGURA PARA LEER DATOS
-#=================================================================
-
-=======
 #===============================================================
 # ░█─── ░█▀▀▀ ░█▀▀▀ ░█▀▀█ 
 # ░█─── ░█▀▀▀ ░█▀▀▀ ░█▄▄▀ 
 # ░█▄▄█ ░█▄▄▄ ░█▄▄▄ ░█─░█
->>>>>>> 9b11614ce3c554609b353b95e4cfb7e0749bc114
 leer_datos_seguro <- function(archivo, tipo = "excel") {
   tryCatch({
     if (!file.exists(archivo)) {
       return(data.frame())
     }
-<<<<<<< HEAD
-    
-    
-=======
->>>>>>> 9b11614ce3c554609b353b95e4cfb7e0749bc114
+
     if (tipo == "excel") {
       datos <- read_excel(archivo)
     } else {
       datos <- read.csv(archivo)
     }
-<<<<<<< HEAD
-    
-=======
->>>>>>> 9b11614ce3c554609b353b95e4cfb7e0749bc114
     return(datos)
   }, error = function(e) {
     return(data.frame())

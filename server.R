@@ -95,13 +95,8 @@ server <- function(input, output, session) {
       type = "message",
       duration = 3
     )
-<<<<<<< HEAD
-    
-    # ! Registrar el evento en los logs
-  })
-=======
 })
->>>>>>> 9b11614ce3c554609b353b95e4cfb7e0749bc114
+
   
   #--------------------------------------------------
   # ! Actualización automática del checkbox "mostrar_clientes"
