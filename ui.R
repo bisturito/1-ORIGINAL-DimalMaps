@@ -229,7 +229,7 @@ ui <- dashboardPage(
         fluidRow(
           column(
             width = 12,
-            h3("Estacionados Camión"),
+            h3("Safetrack Camiones"),
             box(
               title = "Tabla de Estacionados",
               width = 12,
