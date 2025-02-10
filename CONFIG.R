@@ -49,7 +49,7 @@ DATA_PATH <- list(
   merged_df = "./data/Limpia/merged_df.xlsx",
   tabla_final = "./data/Limpia/Tabla_Final_menuDatos.xlsx",
   ubicaciones = "./data/Limpia/Ubicaciones_direcciones.xlsx",
-  estacionados = "./data/Limpia/estacionados_camion_todos_estados.xlsx",
+  estacionados = "./data/Limpia/estacionados_camion.xlsx",
   proyectos = "./data/Limpia/Tabla_Proyectos_Clientes.xlsx"
 )
 
