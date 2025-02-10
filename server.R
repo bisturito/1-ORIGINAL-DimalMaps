@@ -1,13 +1,130 @@
 #==========================================================================
+# ░█▀▀▀█ ░█▀▀▀ ░█▀▀█ ░█──░█ ░█▀▀▀ ░█▀▀█ 
+# ─▀▀▀▄▄ ░█▀▀▀ ░█▄▄▀ ─░█░█─ ░█▀▀▀ ░█▄▄▀ 
+# ░█▄▄▄█ ░█▄▄▄ ░█─░█ ──▀▄▀─ ░█▄▄▄ ░█─░█
 # ! DEFINICIÓN DEL SERVIDOR
 #==========================================================================
 
 server <- function(input, output, session) {
   
+
+#--------------------------------------------------
+# ░█▀▀█ ░█▀▀▀ ░█─── ░█▀▀▀█ ───░█ 
+# ░█▄▄▀ ░█▀▀▀ ░█─── ░█──░█ ─▄─░█ 
+# ░█─░█ ░█▄▄▄ ░█▄▄█ ░█▄▄▄█ ░█▄▄█
+  # ! RELOJ con la hora de Uruguay
+    output$currentTime <- renderText({
+    invalidateLater(1000, session)  # Actualiza cada segundo
+    hora_actual <- with_tz(Sys.time(), tzone = "America/Montevideo")  # Ajusta a la zona horaria de Uruguay
+    paste("Hora actual:", format(hora_actual, "%H:%M:%S"))
+  })
+#--------------------------------------------------
+# ░█▀▀▄ ─█▀▀█ ░█▀▀█ ░█─▄▀ 
+# ░█─░█ ░█▄▄█ ░█▄▄▀ ░█▀▄─ 
+# ░█▄▄▀ ░█─░█ ░█─░█ ░█─░█ 
+  # ! Alternar entre modos claro y oscuro 
+  observe({
+    if (input$dark_mode_switch) {
+      shinyjs::addClass(selector = "body", class = "dark-mode")
+    } else {
+      shinyjs::removeClass(selector = "body", class = "dark-mode")
+    }
+  })
+#--------------------------------------------------
+# ░█▀▀█ ─█▀▀█ ░█▀▀█ ▀▀█▀▀ ░█▀▀▀ ░█───  
+# ░█─── ░█▄▄█ ░█▄▄▀ ─░█── ░█▀▀▀ ░█───  
+# ░█▄▄█ ░█─░█ ░█─░█ ─░█── ░█▄▄▄ ░█▄▄█  
+#
+# ▀█▀ ░█▄─░█ ▀█▀ ░█▀▀█ ▀█▀ ░█▀▀▀█ 
+# ░█─ ░█░█░█ ░█─ ░█─── ░█─ ░█──░█ 
+# ▄█▄ ░█──▀█ ▄█▄ ░█▄▄█ ▄█▄ ░█▄▄▄█
+  # ! Mostrar notificación al iniciar la aplicación
+  # ? Variable reactiva para controlar si ya se mostró la notificación inicial
+  first_load <- reactiveVal(TRUE)
+  
+  observe({
+    if (first_load()) {
+      sendSweetAlert(
+        session = session,
+        title = "¡Datos cargados exitosamente!",
+        text = HTML(
+          paste0(
+            "<p><strong>Clientes último registro: ", format(ultima_fecha_clientes, "%d/%m/%Y"), ".</strong></p>",
+            "<p>Clientes registros totales: <strong>", total_clientes, "</strong>.</p>",
+            "<p><strong>Safetrack van del ", format(primera_fecha_safetrack, "%d/%m/%Y"),
+            " hasta el ", format(ultima_fecha_safetrack, "%d/%m/%Y"), ".</strong></p>",
+            "<p>Safetrack registros totales: <strong>", total_safetrack, "</strong>.</p>",
+            "<p>Tareas actualizado el: <strong>", format(as.Date("2024-12-17"), "%d/%m/%Y"), "</strong>.</p>"
+          )
+        ),
+        html = TRUE,
+        type = "success",
+        width = "500px"
+      )
+      first_load(FALSE)  # Marcar que ya se mostró la notificación
+    }
+  })
   #--------------------------------------------------
-  # ! Manejo de la capa "proyectos_originales" en el mapa
+  # ! Función para mostrar alertas de éxito o error
+  # TODO> No se si esta alerta funciona
   #--------------------------------------------------
   
+  show_alert <- function(type, message) {
+    removeUI(selector = "#alert_placeholder div")  # Elimina cualquier alerta previa
+    insertUI(
+      selector = "#alert_placeholder",
+      ui = div(
+        class = paste0("alert alert-", type),
+        tags$b(message)
+      )
+    )
+    if (type == "success") {
+      shinyjs::delay(3000, removeUI(selector = "#alert_placeholder div"))  # Remueve la alerta después de 3 segundos
+    }
+  }
+
+
+
+  #--------------------------------------------------
+  # ! Preparación de datos adicionales
+  #--------------------------------------------------
+
+  # ? Agrega una columna de URL para ubicaciones_direcciones
+  ubicaciones_direcciones <- ubicaciones_direcciones %>%
+    mutate(UBICACIÓN = paste0("https://www.google.com/maps/search/?api=1&query=", LATITUD, ",", LONGITUD))
+
+
+# ░█▀▀█ ░█▀▀▀█ ░█─── ░█▀▀▀█ ░█▀▀█ ░█▀▀▀ ░█▀▀▀█ 
+# ░█─── ░█──░█ ░█─── ░█──░█ ░█▄▄▀ ░█▀▀▀ ─▀▀▀▄▄ 
+# ░█▄▄█ ░█▄▄▄█ ░█▄▄█ ░█▄▄▄█ ░█─░█ ░█▄▄▄ ░█▄▄▄█
+
+  # ! Definición de colores para los gráficos que combinen con la aplicación
+  colores_graficos <- list(
+    primario = COLORES_APP$primario,  # Color del encabezado y barra lateral
+    secundario = COLORES_APP$secundario,  # Color de acento
+    exito = COLORES_APP$exito,  # Verde para indicadores positivos
+    peligro = COLORES_APP$peligro,    # Rojo para indicadores negativos
+    advertencia = COLORES_APP$advertencia,   # Amarillo para advertencias
+    info = COLORES_APP$info,      # Azul para información
+    claro = COLORES_APP$claro,     # Color de fondo claro
+    oscuro = COLORES_APP$oscuro       # Negro para modo oscuro
+  )
+  
+
+#--------------------------------------------------
+# ░█▀▀█ ─█▀▀█ ░█▀▀█ ─█▀▀█ ░█▀▀▀█ 
+# ░█─── ░█▄▄█ ░█▄▄█ ░█▄▄█ ─▀▀▀▄▄ 
+# ░█▄▄█ ░█─░█ ░█─── ░█─░█ ░█▄▄▄█
+#--------------------------------------------------
+
+# ░█▀▀█ ░█▀▀█ ░█▀▀▀█ ░█──░█ ░█▀▀▀ ░█▀▀█ ▀▀█▀▀ ░█▀▀▀█ ░█▀▀▀█ 
+# ░█▄▄█ ░█▄▄▀ ░█──░█ ░█▄▄▄█ ░█▀▀▀ ░█─── ─░█── ░█──░█ ─▀▀▀▄▄ 
+# ░█─── ░█─░█ ░█▄▄▄█ ──░█── ░█▄▄▄ ░█▄▄█ ─░█── ░█▄▄▄█ ░█▄▄▄█ 
+
+# ░█▀▀▀█ ░█▀▀█ ▀█▀ ░█▀▀█ ▀█▀ ░█▄─░█ ─█▀▀█ ░█─── ░█▀▀▀ ░█▀▀▀█ 
+# ░█──░█ ░█▄▄▀ ░█─ ░█─▄▄ ░█─ ░█░█░█ ░█▄▄█ ░█─── ░█▀▀▀ ─▀▀▀▄▄ 
+# ░█▄▄▄█ ░█─░█ ▄█▄ ░█▄▄█ ▄█▄ ░█──▀█ ░█─░█ ░█▄▄█ ░█▄▄▄ ░█▄▄▄█
+  # ! Manejo de la capa "proyectos_originales" en el map
   # ? Observa cambios en "mostrar_todos_proyectos" y "proyectos_originales"
   observe({
     # Limpia siempre el grupo "proyectos_originales" antes de agregar nuevos marcadores
@@ -39,11 +156,23 @@ server <- function(input, output, session) {
       # ? Si no hay proyectos seleccionados, no agrega nada
     }
   })
-  
-  #--------------------------------------------------
+
+
+
+#--------------------------------------------------
+# ░█▀▄▀█ ░█▀▀▀█ ░█▀▀▀█ ▀▀█▀▀ ░█▀▀█ ─█▀▀█ ░█▀▀█ 
+# ░█░█░█ ░█──░█ ─▀▀▀▄▄ ─░█── ░█▄▄▀ ░█▄▄█ ░█▄▄▀ 
+# ░█──░█ ░█▄▄▄█ ░█▄▄▄█ ─░█── ░█─░█ ░█─░█ ░█─░█ 
+
+# ▀▀█▀▀ ░█▀▀▀█ ░█▀▀▄ ░█▀▀▀█ ░█▀▀▀█ 
+# ─░█── ░█──░█ ░█─░█ ░█──░█ ─▀▀▀▄▄ 
+# ─░█── ░█▄▄▄█ ░█▄▄▀ ░█▄▄▄█ ░█▄▄▄█ 
+
+# ░█▀▀█ ░█▀▀█ ░█▀▀▀█ ░█──░█ ░█▀▀▀ ░█▀▀█ ▀▀█▀▀ ░█▀▀▀█ ░█▀▀▀█ 
+# ░█▄▄█ ░█▄▄▀ ░█──░█ ░█▄▄▄█ ░█▀▀▀ ░█─── ─░█── ░█──░█ ─▀▀▀▄▄ 
+# ░█─── ░█─░█ ░█▄▄▄█ ──░█── ░█▄▄▄ ░█▄▄█ ─░█── ░█▄▄▄█ ░█▄▄▄█
   # ! Actualización automática del checkbox "mostrar_todos_proyectos"
   #--------------------------------------------------
-  
   observeEvent(input$proyectos_originales, {
     if (!is.null(input$proyectos_originales) && length(input$proyectos_originales) > 0) {
       # ! Si se seleccionan proyectos originales, activa el checkbox
@@ -53,55 +182,16 @@ server <- function(input, output, session) {
       updateCheckboxInput(session, "mostrar_todos_proyectos", value = FALSE)
     }
   })
-  
-  #--------------------------------------------------
-  # ! Botón para resetear todos los filtros
-  #--------------------------------------------------
-  
-  observeEvent(input$reset_filtros, {
-    # ! Primero actualizamos los controles
-    # ? Restablecer fecha a valores predeterminados
-    updateDateRangeInput(session, "fecha",
-                        start = Sys.Date() - 1,
-                        end = ultima_fecha_safetrack - 1)
-    
-    # ! Restablecer checkboxes principales
-    updateCheckboxInput(session, "mostrar_todos_proyectos", value = FALSE)
-    updateCheckboxInput(session, "mostrar_clientes", value = FALSE)
-    updateCheckboxInput(session, "mostrar_demora", value = FALSE)
-    
-    # ! Restablecer selectores
-    updateSelectizeInput(session, "proyectos_originales", selected = character(0))
-    updateSelectizeInput(session, "placas_camiones", selected = character(0))
-    updateSelectizeInput(session, "proyectos", selected = character(0))
-    
-    # ! Luego actualizamos el mapa de manera más suave
-    leafletProxy("mapa") %>%
-      clearGroup("proyectos_originales") %>%
-      clearGroup("clientes") %>%
-      clearGroup("camiones") %>%
-      clearGroup("camiones_markers") %>%
-      # ? Usamos flyTo en lugar de setView para una transición más suave
-      flyTo(
-        lat = -34.7736,
-        lng = -55.7536,
-        zoom = 13,
-        options = list(duration = 1.5)  # duración de la animación en segundos
-      )
-    
-    # ! Mostrar mensaje usando una notificación simple
-    showNotification(
-      "Filtros reseteados correctamente",
-      type = "message",
-      duration = 3
-    )
-})
 
-  
-  #--------------------------------------------------
-  # ! Actualización automática del checkbox "mostrar_clientes"
-  #--------------------------------------------------
-  
+#--------------------------------------------------
+# ░█▀▄▀█ ░█▀▀▀█ ░█▀▀▀█ ▀▀█▀▀ ░█▀▀█ ─█▀▀█ ░█▀▀█ 
+# ░█░█░█ ░█──░█ ─▀▀▀▄▄ ─░█── ░█▄▄▀ ░█▄▄█ ░█▄▄▀ 
+# ░█──░█ ░█▄▄▄█ ░█▄▄▄█ ─░█── ░█─░█ ░█─░█ ░█─░█ 
+
+# ░█▀▀█ ░█─── ▀█▀ ░█▀▀▀ ░█▄─░█ ▀▀█▀▀ ░█▀▀▀ ░█▀▀▀█ 
+# ░█─── ░█─── ░█─ ░█▀▀▀ ░█░█░█ ─░█── ░█▀▀▀ ─▀▀▀▄▄ 
+# ░█▄▄█ ░█▄▄█ ▄█▄ ░█▄▄▄ ░█──▀█ ─░█── ░█▄▄▄ ░█▄▄▄█
+  # ! Actualización automática del checkbox "mostrar_clientes"  
   observeEvent(input$proyectos, {
     if (!is.null(input$proyectos) && length(input$proyectos) > 0) {
       # ! Si se seleccionan proyectos predictivos, activa el checkbox
@@ -111,119 +201,108 @@ server <- function(input, output, session) {
       updateCheckboxInput(session, "mostrar_clientes", value = FALSE)
     }
   })
-  
+
+
+
+
+
+
   #--------------------------------------------------
-  # ! RELOJ con la hora de Uruguay
-  #--------------------------------------------------
-  
-  output$currentTime <- renderText({
-    invalidateLater(1000, session)  # Actualiza cada segundo
-    hora_actual <- with_tz(Sys.time(), tzone = "America/Montevideo")  # Ajusta a la zona horaria de Uruguay
-    paste("Hora actual:", format(hora_actual, "%H:%M:%S"))
-  })
-  
-  #--------------------------------------------------
-  # ! Preparación de datos adicionales
+  # ! Filtrar datos para la tabla final
   #--------------------------------------------------
   
-  # ? Agrega una columna de URL para ubicaciones_direcciones
-  ubicaciones_direcciones <- ubicaciones_direcciones %>%
-    mutate(Ubicacion_URL = paste0("https://www.google.com/maps/search/?api=1&query=", LATITUD, ",", LONGITUD))
-  
-  # ! Definición de colores para los gráficos que combinen con la aplicación
-  colores_graficos <- list(
-    primario = COLORES_APP$primario,  # Color del encabezado y barra lateral
-    secundario = COLORES_APP$secundario,  # Color de acento
-    exito = COLORES_APP$exito,  # Verde para indicadores positivos
-    peligro = COLORES_APP$peligro,    # Rojo para indicadores negativos
-    advertencia = COLORES_APP$advertencia,   # Amarillo para advertencias
-    info = COLORES_APP$info,      # Azul para información
-    claro = COLORES_APP$claro,     # Color de fondo claro
-    oscuro = COLORES_APP$oscuro       # Negro para modo oscuro
-  )
-  
-  #--------------------------------------------------
-  # ! Alternar entre modos claro y oscuro
-  #--------------------------------------------------
-  
-  observe({
-    if (input$dark_mode_switch) {
-      shinyjs::addClass(selector = "body", class = "dark-mode")
-    } else {
-      shinyjs::removeClass(selector = "body", class = "dark-mode")
-    }
-  })
-  
-  #--------------------------------------------------
-  # ! Mostrar notificación al iniciar la aplicación
-  #--------------------------------------------------
-  
-  # ? Variable reactiva para controlar si ya se mostró la notificación inicial
-  first_load <- reactiveVal(TRUE)
-  
-  observe({
-    if (first_load()) {
-      sendSweetAlert(
-        session = session,
-        title = "¡Datos cargados exitosamente!",
-        text = HTML(
-          paste0(
-            "<p><strong>Clientes último registro: ", format(ultima_fecha_clientes, "%d/%m/%Y"), ".</strong></p>",
-            "<p>Clientes registros totales: <strong>", total_clientes, "</strong>.</p>",
-            "<p><strong>Safetrack van del ", format(primera_fecha_safetrack, "%d/%m/%Y"),
-            " hasta el ", format(ultima_fecha_safetrack, "%d/%m/%Y"), ".</strong></p>",
-            "<p>Safetrack registros totales: <strong>", total_safetrack, "</strong>.</p>",
-            "<p>Tareas actualizado el: <strong>", format(as.Date("2024-12-17"), "%d/%m/%Y"), "</strong>.</p>"
-          )
-        ),
-        html = TRUE,
-        type = "success",
-        width = "500px"
-      )
-      first_load(FALSE)  # Marcar que ya se mostró la notificación
-    }
-  })
-  
-  #--------------------------------------------------
-  # ! Función para mostrar alertas de éxito o error
-  #--------------------------------------------------
-  
-  show_alert <- function(type, message) {
-    removeUI(selector = "#alert_placeholder div")  # Elimina cualquier alerta previa
-    insertUI(
-      selector = "#alert_placeholder",
-      ui = div(
-        class = paste0("alert alert-", type),
-        tags$b(message)
-      )
-    )
-    if (type == "success") {
-      shinyjs::delay(3000, removeUI(selector = "#alert_placeholder div"))  # Remueve la alerta después de 3 segundos
-    }
-  }
-  
-  #--------------------------------------------------
-  # ! Filtrar datos para la tabla de estacionados
-  #--------------------------------------------------
-  
-  datos_estacionados_filtrados <- reactive({
-    req(input$fecha_estacionados)  # Asegura que el input no sea NULL
+  datos_tabla_final_filtrados <- reactive({
+    req(input$fecha_nueva_tabla)  # Asegura que el input no sea NULL
     
-    if (length(input$fecha_estacionados) == 2) {
-      fecha_inicio <- as.POSIXct(paste(input$fecha_estacionados[1], "00:00:00"), tz = "America/Montevideo")
-      fecha_fin <- as.POSIXct(paste(input$fecha_estacionados[2], "23:59:59"), tz = "America/Montevideo")
-      
-      return(estacionados_camion %>%
-        filter(
-          Tiempo_de_Inicio >= fecha_inicio,
-          Tiempo_de_Inicio <= fecha_fin
-        ))
-    } else {
-      return(data.frame())  # Retorna un data frame vacío si las fechas no son válidas
+    # Convertir las fechas del formato "dd-mm-yyyy" a Date
+    filtered_data <- tabla_final %>%
+      mutate(
+        Fecha = as.Date(Dia_camion_estac, format = "%d-%m-%Y"),
+        Hora = as.POSIXct(paste(Dia_camion_estac, Hora_camion_desde), 
+                          format = "%d-%m-%Y %H:%M", 
+                          tz = "America/Montevideo")
+      )
+    
+    # Filtrar por rango de fechas
+    filtered_data <- filtered_data %>%
+      filter(Fecha >= as.Date(input$fecha_nueva_tabla[1]) & 
+             Fecha <= as.Date(input$fecha_nueva_tabla[2]))
+    
+    # Filtrar por rango de horas si está seleccionado
+    if (!is.null(input$hora_nueva_tabla)) {
+      filtered_data <- filtered_data %>%
+        filter(hour(Hora) >= input$hora_nueva_tabla[1] & 
+               hour(Hora) <= input$hora_nueva_tabla[2])
     }
+    
+    # Filtrar por placas si se seleccionaron
+    if (!is.null(input$placa_nueva_tabla) && length(input$placa_nueva_tabla) > 0) {
+      filtered_data <- filtered_data %>% 
+        filter(Numero_de_placa %in% input$placa_nueva_tabla)
+    }
+    
+    # Seleccionar y ordenar las columnas relevantes
+    filtered_data <- filtered_data %>%
+      select(
+        Dia_camion_estac,
+        Hora_camion_desde,
+        Numero_de_placa,
+        CODIGO,
+        NOMCLI,
+        Duracion,
+        distancia_predictiva,
+        Ubicacion_Camion,
+        Ubicacion_Cliente
+      )
+    
+    return(filtered_data)
   })
   
-  #--------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#--------------------------------------------------
   # ! Observador para mostrar u ocultar clientes en el mapa
   #--------------------------------------------------
   
@@ -286,8 +365,8 @@ server <- function(input, output, session) {
       return(data.frame())  # Retorna un data frame vacío en caso de error
     })
   })
-  
-  #--------------------------------------------------
+
+#--------------------------------------------------
   # ! Actualizar opciones de 'placas_camiones' y 'proyectos' basado en el rango de fechas seleccionado
   #--------------------------------------------------
   
@@ -338,8 +417,7 @@ server <- function(input, output, session) {
       return(NULL)
     }
   })
-  
-  #--------------------------------------------------
+#--------------------------------------------------
   # ! Renderizar mapa inicial
   #--------------------------------------------------
   
@@ -374,7 +452,7 @@ server <- function(input, output, session) {
         lat = ~LATITUD,
         popup = ~paste0(
           "Cliente: ", NOMCLI, "<br>",
-          "Ubicación: <a href='", Ubicacion_URL, "' target='_blank'>Ver en Mapa</a>"
+          "Ubicación: <a href='", UBICACIÓN, "' target='_blank'>Ver en Mapa</a>"
         ),
         icon = cliente_icon,
         group = "👥 Ver todos los clientes"
@@ -403,7 +481,7 @@ server <- function(input, output, session) {
   observe({
     leafletProxy("mapa") %>% hideGroup("👥 Ver todos los clientes")
   })
-  
+
   #--------------------------------------------------
   # ! Observador para mostrar u ocultar la leyenda de demora
   #--------------------------------------------------
@@ -425,7 +503,17 @@ server <- function(input, output, session) {
       leafletProxy("mapa") %>% removeControl("legend")
     }
   })
-  
+
+#--------------------------------------------------
+# ! Actualizar mapa basado en filtros seleccionados
+# ░█▀▀▀ ▀█▀ ░█─── ▀▀█▀▀ ░█▀▀█ ░█▀▀▀█ ░█▀▀▀█ 
+# ░█▀▀▀ ░█─ ░█─── ─░█── ░█▄▄▀ ░█──░█ ─▀▀▀▄▄ 
+# ░█─── ▄█▄ ░█▄▄█ ─░█── ░█─░█ ░█▄▄▄█ ░█▄▄▄█
+
+# TODO en este sector 
+#--------------------------------------------------
+
+
   #--------------------------------------------------
   # ! Actualizar mapa basado en filtros seleccionados
   #--------------------------------------------------
@@ -456,7 +544,7 @@ server <- function(input, output, session) {
             "<br>Proyecto:", PROYECTO,
             "<br>Cliente:", NOMCLI,
             "<br><a href='", Ubicacion_URL, "' target='_blank'>Ver en Google Maps</a>"
-          )
+          ) # ! TODO en el automatizable reemplazamos por UBICACION
         )
       
       if(nrow(merged_markers) > 0) {
@@ -476,8 +564,8 @@ server <- function(input, output, session) {
           )
       }
     }
-    
-    # Mostrar clientes si está seleccionado
+
+# Mostrar clientes si está seleccionado
     if (input$mostrar_clientes && nrow(datos_mapa) > 0) {
       clientes_markers <- datos_mapa %>%
         filter(!is.na(LATITUD) & !is.na(LONGITUD)) %>%
@@ -500,30 +588,40 @@ server <- function(input, output, session) {
       }
     }
   })
-  
+
+
+
+# TODO ===============================================
+# TODO ▀▀█▀▀ ░█▀▀▀█ ░█▀▀▄ ░█▀▀▀█ 
+# TODO ─░█── ░█──░█ ░█─░█ ░█──░█ 
+# TODO ─░█── ░█▄▄▄█ ░█▄▄▀ ░█▄▄▄█
+# ! ACA FALTA UNA PARTE TRAER DESDE EL OTRO SERVER, 
+# ! datos_tabla_final_filtrados <- reactive etc...
+# TODO ===============================================
+
   #--------------------------------------------------
-  # ! Renderizar tabla de duración con mejoras visuales
+  # ! Filtrar datos para la tabla de estacionados
   #--------------------------------------------------
   
-  output$tabla_duracion <- renderDT({
-    duration_stats <- duration_stats_by_truck()
+  datos_estacionados_filtrados <- reactive({
+  req(input$fecha_estacionados)  # Asegura que el input no sea NULL
+  
+  if (length(input$fecha_estacionados) == 2) {
+    fecha_inicio <- as.POSIXct(paste(input$fecha_estacionados[1], "00:00:00"),
+                               tz = "America/Montevideo")
+    fecha_fin <- as.POSIXct(paste(input$fecha_estacionados[2], "23:59:59"),
+                            tz = "America/Montevideo")
     
-    if (!is.null(duration_stats)) {
-      datatable(
-        duration_stats,
-        colnames = c("Número de Placa", "Mínimo", "Mediana", "Máximo"),
-        options = list(
-          pageLength = 10,
-          dom = 't',
-          columnDefs = list(list(targets = 1:3, className = 'dt-center'))
-        )
+    estacionados_camion %>%
+      filter(
+        Tiempo_de_Inicio >= fecha_inicio,
+        Tiempo_de_Inicio <= fecha_fin
       )
-    } else {
-      datatable(data.frame(Mensaje = "No hay datos disponibles para el período seleccionado"))
-    }
-  })  
-  
-  #--------------------------------------------------
+  } else {
+    data.frame()  # vacío si la fecha no es válida
+  }
+})
+#--------------------------------------------------
   # ! Mostrar fecha seleccionada en la pestaña Estadísticas
   #--------------------------------------------------
   
@@ -532,10 +630,11 @@ server <- function(input, output, session) {
     fecha_fin <- format(as.Date(input$fecha[2]), "%d/%m/%Y")
     paste(fecha_inicio, " - ", fecha_fin)
   })
-  
-  #--------------------------------------------------
-  # ! ================= GRAFICOS ===================
-  #--------------------------------------------------
+#--------------------------------------------------
+# ! ░█▀▀█ ░█▀▀█ ─█▀▀█ ░█▀▀▀ ▀█▀ ░█▀▀█ ░█▀▀▀█ 
+# ! ░█─▄▄ ░█▄▄▀ ░█▄▄█ ░█▀▀▀ ░█─ ░█─── ░█──░█ 
+# ! ░█▄▄█ ░█─░█ ░█─░█ ░█─── ▄█▄ ░█▄▄█ ░█▄▄▄█
+#--------------------------------------------------
   
   # Gráfico: Duración Camiones
   output$cuanto_tarda_plot <- renderPlotly({
@@ -580,8 +679,7 @@ server <- function(input, output, session) {
              plot_bgcolor = colores_graficos$claro,
              paper_bgcolor = colores_graficos$claro)
   })
-  
-  # Gráfico: Proyectos por Duración
+# Gráfico: Proyectos por Duración
   output$proyectos_por_duracion_plot <- renderPlotly({
     filtered_data <- datos_filtrados()
     
@@ -607,8 +705,7 @@ server <- function(input, output, session) {
              plot_bgcolor = colores_graficos$claro,
              paper_bgcolor = colores_graficos$claro)
   })
-  
-  # Gráfico: Camiones con Más Clientes visitados
+ # Gráfico: Camiones con Más Clientes visitados
   output$camiones_mas_clientes_plot <- renderPlotly({
     filtered_data <- datos_filtrados()
     
@@ -637,7 +734,6 @@ server <- function(input, output, session) {
              paper_bgcolor = colores_graficos$claro,
              font = list(size = 12))  # Aumentar el tamaño general de la fuente
   })
-  
   # Gráfico: Clientes Más Visitados
   output$clientes_mas_visitados_plot <- renderPlotly({
     filtered_data <- datos_filtrados()
@@ -648,7 +744,7 @@ server <- function(input, output, session) {
       arrange(desc(Total_Visitas)) %>%
       slice_head(n = 10)  # Cambiar a top 10
     
-    # Crear el gráfico de barras horizontales
+# Crear el gráfico de barras horizontales
     plot_ly(clientes_visitados, 
             x = ~Total_Visitas,
             y = ~reorder(NOMCLI, Total_Visitas),
@@ -692,10 +788,9 @@ server <- function(input, output, session) {
              plot_bgcolor = colores_graficos$claro,
              paper_bgcolor = colores_graficos$claro)
   })
-  
-  #--------------------------------------------------
+#--------------------------------------------------
   # ! Observador adicional para proyectos_originales
-  #--------------------------------------------------
+#--------------------------------------------------
   
   observeEvent(input$proyectos_originales, {
     req(input$proyectos_originales)  # Detiene el proceso si es NULL
@@ -712,7 +807,6 @@ server <- function(input, output, session) {
         group = "proyectos_originales"
       )
   })
-  
   #--------------------------------------------------
   # ! Observador adicional para proyectos
   #--------------------------------------------------
@@ -724,62 +818,20 @@ server <- function(input, output, session) {
       updateCheckboxInput(session, "mostrar_clientes", value = FALSE)
     }
   })
-  
-  #--------------------------------------------------
-  # ! Filtrar datos para la tabla final
-  #--------------------------------------------------
-  
-  datos_tabla_final_filtrados <- reactive({
-    req(input$fecha_nueva_tabla)  # Asegura que el input no sea NULL
-    
-    # Convertir las fechas del formato "dd-mm-yyyy" a Date
-    filtered_data <- tabla_final %>%
-      mutate(
-        Fecha = as.Date(Dia_camion_estac, format = "%d-%m-%Y"),
-        Hora = as.POSIXct(paste(Dia_camion_estac, Hora_camion_desde), 
-                          format = "%d-%m-%Y %H:%M", 
-                          tz = "America/Montevideo")
-      )
-    
-    # Filtrar por rango de fechas
-    filtered_data <- filtered_data %>%
-      filter(Fecha >= as.Date(input$fecha_nueva_tabla[1]) & 
-             Fecha <= as.Date(input$fecha_nueva_tabla[2]))
-    
-    # Filtrar por rango de horas si está seleccionado
-    if (!is.null(input$hora_nueva_tabla)) {
-      filtered_data <- filtered_data %>%
-        filter(hour(Hora) >= input$hora_nueva_tabla[1] & 
-               hour(Hora) <= input$hora_nueva_tabla[2])
-    }
-    
-    # Filtrar por placas si se seleccionaron
-    if (!is.null(input$placa_nueva_tabla) && length(input$placa_nueva_tabla) > 0) {
-      filtered_data <- filtered_data %>% 
-        filter(Numero_de_placa %in% input$placa_nueva_tabla)
-    }
-    
-    # Seleccionar y ordenar las columnas relevantes
-    filtered_data <- filtered_data %>%
-      select(
-        Dia_camion_estac,
-        Hora_camion_desde,
-        Numero_de_placa,
-        CODIGO,
-        NOMCLI,
-        Duracion,
-        distancia_predictiva,
-        Ubicacion_Camion,
-        Ubicacion_Cliente
-      )
-    
-    return(filtered_data)
-  })
-  
-  #--------------------------------------------------
-  # ! ================== DESCARGAS ===================
-  #--------------------------------------------------
-  
+
+# ! ================== DESCARGAS ===================
+# ░█▀▀▄ ░█▀▀▀ ░█▀▀▀█ ░█▀▀█ ─█▀▀█ ░█▀▀█ ░█▀▀█ ─█▀▀█ 
+# ░█─░█ ░█▀▀▀ ─▀▀▀▄▄ ░█─── ░█▄▄█ ░█▄▄▀ ░█─▄▄ ░█▄▄█ 
+# ░█▄▄▀ ░█▄▄▄ ░█▄▄▄█ ░█▄▄█ ░█─░█ ░█─░█ ░█▄▄█ ░█─░█
+
+# ▀▀█▀▀ ─█▀▀█ ░█▀▀█ ░█─── ─█▀▀█ 
+# ─░█── ░█▄▄█ ░█▀▀▄ ░█─── ░█▄▄█ 
+# ─░█── ░█─░█ ░█▄▄█ ░█▄▄█ ░█─░█ 
+
+# ░█▀▀▀ ▀█▀ ░█▄─░█ ─█▀▀█ ░█─── 
+# ░█▀▀▀ ░█─ ░█░█░█ ░█▄▄█ ░█─── 
+# ░█─── ▄█▄ ░█──▀█ ░█─░█ ░█▄▄█
+
   # Descarga de Tabla Final en Excel
   output$download_tabla_final <- downloadHandler(
     filename = function() {
@@ -793,7 +845,16 @@ server <- function(input, output, session) {
       write_xlsx(data_to_download, path = file)
     }
   )
+
   
+# ░█▀▀█ ░█▀▀█ ░█▀▀▀█ ░█──░█ ░█▀▀▀ ░█▀▀█ ▀▀█▀▀ ░█▀▀▀█ ░█▀▀▀█ 
+# ░█▄▄█ ░█▄▄▀ ░█──░█ ░█▄▄▄█ ░█▀▀▀ ░█─── ─░█── ░█──░█ ─▀▀▀▄▄ 
+# ░█─── ░█─░█ ░█▄▄▄█ ──░█── ░█▄▄▄ ░█▄▄█ ─░█── ░█▄▄▄█ ░█▄▄▄█ 
+
+# ░█▀▀█ ░█─── ▀█▀ ░█▀▀▀ ░█▄─░█ ▀▀█▀▀ ░█▀▀▀ ░█▀▀▀█ 
+# ░█─── ░█─── ░█─ ░█▀▀▀ ░█░█░█ ─░█── ░█▀▀▀ ─▀▀▀▄▄ 
+# ░█▄▄█ ░█▄▄█ ▄█▄ ░█▄▄▄ ░█──▀█ ─░█── ░█▄▄▄ ░█▄▄▄█  
+
   # Descarga de Tabla de Proyectos y Clientes
   output$download_proyectos <- downloadHandler(
     filename = function() {
@@ -811,55 +872,81 @@ server <- function(input, output, session) {
       saveWorkbook(wb, file, overwrite = TRUE)
     }
   )
-  
+
+# ░█▀▀█ ░█▀▀█ ░█▀▀▀ ░█▀▀▄ ▀█▀ ░█▀▀█ ▀▀█▀▀ ▀█▀ ░█──░█ ░█▀▀▀█ 
+# ░█▄▄█ ░█▄▄▀ ░█▀▀▀ ░█─░█ ░█─ ░█─── ─░█── ░█─ ─░█░█─ ░█──░█ 
+# ░█─── ░█─░█ ░█▄▄▄ ░█▄▄▀ ▄█▄ ░█▄▄█ ─░█── ▄█▄ ──▀▄▀─ ░█▄▄▄█ 
+
+# ░█▀▀█ ░█─── ▀█▀  ░█▀▀█ ─█▀▀█ ░█▀▄▀█ ▀█▀ ░█▀▀▀█ ░█▄─░█ 
+# ░█─── ░█─── ░█─  ░█─── ░█▄▄█ ░█░█░█ ░█─ ░█──░█ ░█░█░█ 
+# ░█▄▄█ ░█▄▄█ ▄█▄  ░█▄▄█ ░█─░█ ░█──░█ ▄█▄ ░█▄▄▄█ ░█──▀█
+
   # Descarga de Tabla de Estacionados
   output$download_estacionados <- downloadHandler(
-    filename = function() {
-      paste("Estacionados_Camion_", format(Sys.Date(), "%Y-%m-%d"), ".xlsx", sep="")
-    },
-    content = function(file) {
-      # Usar los datos filtrados de la función reactiva
-      filtered_data <- datos_estacionados_filtrados()
-      
-      # Crear un workbook
-      wb <- createWorkbook()
-      addWorksheet(wb, "Datos")
-      writeData(wb, "Datos", filtered_data)
-      saveWorkbook(wb, file, overwrite = TRUE)
+  filename = function() {
+    paste("Estacionados_Camion_", format(Sys.Date(), "%Y-%m-%d"), ".xlsx", sep="")
+  },
+  content = function(file) {
+    filtered_data <- datos_estacionados_filtrados()
+    wb <- createWorkbook()
+    addWorksheet(wb, "Datos")
+    writeData(wb, "Datos", filtered_data)
+    saveWorkbook(wb, file, overwrite = TRUE)
+  }
+)
+
+  
+# ==================================================
+
+# ░█▀▀█ ░█▀▀▀ ░█▄─░█ ░█▀▀▄ ░█▀▀▀ ░█▀▀█ 
+# ░█▄▄▀ ░█▀▀▀ ░█░█░█ ░█─░█ ░█▀▀▀ ░█▄▄▀ 
+# ░█─░█ ░█▄▄▄ ░█──▀█ ░█▄▄▀ ░█▄▄▄ ░█─░█
+# ! Renderizar tabla de duración con mejoras visuales
+
+  output$tabla_duracion <- renderDT({
+    duration_stats <- duration_stats_by_truck()
+    
+    if (!is.null(duration_stats)) {
+      datatable(
+        duration_stats,
+        colnames = c("Número de Placa", "Mínimo", "Mediana", "Máximo"),
+        options = list(
+          pageLength = 10,
+          dom = 't',
+          columnDefs = list(list(targets = 1:3, className = 'dt-center'))
+        )
+      )
+    } else {
+      datatable(data.frame(Mensaje = "No hay datos disponibles para el período seleccionado"))
     }
-  )
-  
-  #--------------------------------------------------
-  # ! ================== RENDER DE TABLAS ===================
-  #--------------------------------------------------
-  
+  })  
   # Renderizar tabla de estacionados
   output$tabla_estacionados <- renderDT({
-    data_filtered <- datos_estacionados_filtrados()
-    
-    datatable(
-      data_filtered,
-      options = list(
-        pageLength = 20,
-        scrollX = TRUE,
-        dom = 'lrtip',
-        language = list(
-          search = "Buscar:",
-          lengthMenu = "Mostrar _MENU_ registros por página",
-          info = "Mostrando _START_ a _END_ de _TOTAL_ registros",
-          paginate = list(
-            first = "Primero",
-            last = "Último",
-            siguiente = "Siguiente",
-            anterior = "Anterior"
-          )
+  data_filtered <- datos_estacionados_filtrados()
+  datatable(
+    data_filtered,
+    options = list(
+      pageLength = 20,
+      scrollX = TRUE,
+      dom = 'lrtip',
+      language = list(
+        search = "Buscar:",
+        lengthMenu = "Mostrar _MENU_ registros por página",
+        info = "Mostrando _START_ a _END_ de _TOTAL_ registros",
+        paginate = list(
+          first = "Primero",
+          last = "Último",
+          siguiente = "Siguiente",
+          anterior = "Anterior"
         )
-      ),
-      selection = 'single',
-      filter = list(position = 'top', clear = FALSE),
-      rownames = FALSE
-    )
-  })
+      )
+    ),
+    selection = 'single',
+    filter = list(position = 'top', clear = FALSE),
+    rownames = FALSE
+  )
+})
+
   
   # Renderizar tabla de proyectos y clientes
   output$tabla_proyectos <- renderDT({
@@ -932,7 +1019,59 @@ server <- function(input, output, session) {
     )
   })
   
-  #--------------------------------------------------
+
+# --------------------------------------------------
+# ░█▀▀█ ░█▀▀▀ ░█▀▀▀█ ░█▀▀▀ ▀▀█▀▀ 
+# ░█▄▄▀ ░█▀▀▀ ─▀▀▀▄▄ ░█▀▀▀ ─░█── 
+# ░█─░█ ░█▄▄▄ ░█▄▄▄█ ░█▄▄▄ ─░█──
+  # ! Botón para resetear todos los filtros
+  # --------------------------------------------------
+  
+  observeEvent(input$reset_filtros, {
+    # ! Primero actualizamos los controles
+    # ? Restablecer fecha a valores predeterminados
+    updateDateRangeInput(session, "fecha",
+                        start = Sys.Date() - 1,
+                        end = ultima_fecha_safetrack - 1)
+    
+    # ! Restablecer checkboxes principales
+    updateCheckboxInput(session, "mostrar_todos_proyectos", value = FALSE)
+    updateCheckboxInput(session, "mostrar_clientes", value = FALSE)
+    updateCheckboxInput(session, "mostrar_demora", value = FALSE)
+    
+    # ! Restablecer selectores
+    updateSelectizeInput(session, "proyectos_originales", selected = character(0))
+    updateSelectizeInput(session, "placas_camiones", selected = character(0))
+    updateSelectizeInput(session, "proyectos", selected = character(0))
+    
+    # ! Luego actualizamos el mapa de manera más suave
+    leafletProxy("mapa") %>%
+      clearGroup("proyectos_originales") %>%
+      clearGroup("clientes") %>%
+      clearGroup("camiones") %>%
+      clearGroup("camiones_markers") %>%
+      # ? Usamos flyTo en lugar de setView para una transición más suave
+      flyTo(
+        lat = -34.7736,
+        lng = -55.7536,
+        zoom = 13,
+        options = list(duration = 1.5)  # duración de la animación en segundos
+      )
+    
+    # ! Mostrar mensaje usando una notificación simple
+    showNotification(
+      "Filtros reseteados correctamente",
+      type = "message",
+      duration = 3
+    )
+  })
+#--------------------------------------------------
+# ░█▀▀█ ░█▀▀▀ ░█▀▀▀█ ░█▀▀▀ ▀▀█▀▀ 
+# ░█▄▄▀ ░█▀▀▀ ─▀▀▀▄▄ ░█▀▀▀ ─░█── 
+# ░█─░█ ░█▄▄▄ ░█▄▄▄█ ░█▄▄▄ ─░█──
+  # aca estamos usando distintas variables para start y end
+  # Una opcion a futuro es usar fecha_inicio_default
+
   # ! Resetear filtros de la tabla final
   #--------------------------------------------------
   
