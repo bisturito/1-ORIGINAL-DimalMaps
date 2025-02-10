@@ -35,20 +35,14 @@ suppressPackageStartupMessages({
   library(openxlsx)
   library(logger)
 })
-<<<<<<< HEAD
-=======
 
->>>>>>> 9b11614ce3c554609b353b95e4cfb7e0749bc114
 # # ===============================================================
 # ░█▀▀█ ░█─░█ ▀▀█▀▀ ─█▀▀█ ░█▀▀▀█ 
 # ░█▄▄▀ ░█─░█ ─░█── ░█▄▄█ ─▀▀▀▄▄ 
 # ░█─░█ ─▀▄▄▀ ─░█── ░█─░█ ░█▄▄▄█
-<<<<<<< HEAD
-# !  RUTAS Y ARCHIVOS 
-=======
+# !  RUTAS Y ARCHIVOS
 # !  RUTAS Y ARCHIVOS / AHORA GOOGLE SHEET
 # ! Rutas de archivos
->>>>>>> 9b11614ce3c554609b353b95e4cfb7e0749bc114
 DATA_PATH <- list(
   lugares_pago = "./data/Limpia/lugares_pago.xlsx",
   ubi_empresa = "./data/Limpia/ubi_empresa.xlsx",
@@ -58,10 +52,7 @@ DATA_PATH <- list(
   estacionados = "./data/Limpia/estacionados_camion_todos_estados.xlsx",
   proyectos = "./data/Limpia/Tabla_Proyectos_Clientes.xlsx"
 )
-<<<<<<< HEAD
-=======
 
->>>>>>> 9b11614ce3c554609b353b95e4cfb7e0749bc114
 # # ===============================================================
 # 
 # ░█▀▄▀█ ─█▀▀█ ░█▀▀█ ─█▀▀█ 
@@ -75,11 +66,6 @@ MAPA_CONFIG <- list(
   zoom_min = 11,   # Zoom mínimo permitido
   zoom_max = 18    # Zoom máximo permitido
 )
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 9b11614ce3c554609b353b95e4cfb7e0749bc114
 # # ===============================================================
 # 
 # ░█▀▀▀ ░█▀▀▀█ ▀▀█▀▀ ▀█▀ ░█─── ░█▀▀▀█ 
