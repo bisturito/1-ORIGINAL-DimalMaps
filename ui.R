@@ -13,7 +13,7 @@ source("CONFIG.R")
 ui <- dashboardPage(
   
   # ! Encabezado del dashboard con el título de la aplicación
-  dashboardHeader(title = "Mapas Distribuidora Dimal"),
+  dashboardHeader(title = "Dimal Mapas"),
   
   # ! Barra lateral del dashboard
   dashboardSidebar(
@@ -352,7 +352,7 @@ ui <- dashboardPage(
         fluidRow(
           column(
             width = 12,
-            h3("Guía de uso"),
+            h2("Guía de uso"),
             
             # 1) Texto inicial
             p("DIMAL MAPAS es una app que muestra las paradas de los camiones en sus recorridos diarios 
@@ -366,17 +366,23 @@ ui <- dashboardPage(
             br(),
             
             # 2) Cómo usarlo
-            p("COMO USARLO"),
+            h3("COMO USARLO"),
             p("Hay tres tipos de menú con información pertinente:"),
             p("1- Mapas"),
             p("2- Estadísticas"),
             p("3- Datos"),
+            tags$img(
+              src = "png/como_usarlo.png", 
+              style = "max-width:200px; display:block; margin-bottom:20px; margin-top:10px;"
+            ),
             
             br(),
             
             # 3) Sección: Mapas
-            p(strong("1- Mapas")),
-            p("Filtro: Rango de Fechas. Se puede filtrar por rango de fechas. La app al comenzar siempre 
+            h3("1- Mapas"),
+            h4("Datos Safetrack"),            
+            p(strong("Filtro: Rango de fechas:")),
+            p("Se puede filtrar por rango de fechas. La app al comenzar siempre 
                mostrará los datos cargados del día anterior (de 7am a 6pm)."),
             
             tags$img(
@@ -386,6 +392,10 @@ ui <- dashboardPage(
             
             p("Mostrará los camiones estacionados. Los camiones tienen el ícono de camión y los colores 
                representan el tiempo que permanecieron estacionados:"),
+               tags$img(
+              src = "png/duracion_mapa.png", 
+              style = "max-width:200px; display:block; margin-bottom:20px; margin-top:10px;"
+            ),
             p("- Verde: menos de 12 minutos."),
             p("- Amarillo: entre 12 y 20 minutos."),
             p("- Rojo: más de 20 minutos."),
@@ -397,17 +407,25 @@ ui <- dashboardPage(
             # Filtro: Seleccionar Placas de Camiones
             p(strong("Filtro: Seleccionar Placas de Camiones")),
             p("Se podrá filtrar por placas de camiones para visibilizar el recorrido de solo un camión 
-               durante un rango determinado de tiempo. Al hacer clic en el ícono de camión, encontramos 
-               datos como: Número de placa, tiempo de inicio, duración y la predicción de Proyecto/Cliente."),
-            
-            tags$img(
+               durante un rango determinado de tiempo."),
+  tags$img(
               src = "png/selector_placas_camiones.png", 
               style = "max-width:400px; display:block; margin-bottom:20px; margin-top:10px;"
             ),
+               
+            p("Al hacer clic en el ícono de camión, encontramos 
+               datos como: Número de placa, tiempo de inicio, duración y la predicción de Proyecto/Cliente."),
+tags$img(
+              src = "png/click_camion.png", 
+              style = "max-width:400px; display:block; margin-bottom:20px; margin-top:10px;"
+            ),
+            
+          
             
             br(),
             
             # Filtro: Mostrar Clientes Predictivos
+            h4("Datos Predictivos"),
             p(strong("Filtro: Mostrar Clientes Predictivos")),
             p("El menú 'Mostrar Clientes (Predictivos)' ubica en el mapa los clientes que se encuentren 
                más cercanos a las paradas de los camiones. Así se estima el potencial cliente visitado 
@@ -424,7 +442,7 @@ ui <- dashboardPage(
                por defecto para vincular rápidamente ambos."),
             
             tags$img(
-              src = "png/ejemplo_cliente_camion.png", 
+              src = "png/click_cliente.png", 
               style = "max-width:400px; display:block; margin-bottom:20px; margin-top:10px;"
             ),
             
@@ -433,7 +451,7 @@ ui <- dashboardPage(
                ubicación de la empresa."),
             
             tags$img(
-              src = "png/capas_del_mapa.png", 
+              src = "png/capa_del_mapa.png", 
               style = "max-width:400px; display:block; margin-bottom:20px; margin-top:10px;"
             ),
             
@@ -444,8 +462,14 @@ ui <- dashboardPage(
             p("Permite seleccionar y visibilizar el camión vinculado con un proyecto específico. Al ser 
                predictivo, responde al atributo del proyecto que esté vinculado con el cliente más cercano 
                al camión."),
+               br(),
             
             # Filtro: Mostrar proyectos (Originales)
+            h4("Datos Proyectos Originales"),
+            tags$img(
+              src = "png/datos_proyectos_originales.png", 
+              style = "max-width:400px; display:block; margin-bottom:20px; margin-top:10px;"
+            ),
             p(strong("Filtro: Mostrar proyectos (Originales)")),
             p("Permite mostrar todos los proyectos y sus ubicaciones, representados por un ícono celeste."),
             
@@ -461,15 +485,19 @@ ui <- dashboardPage(
             br(),
             
             # 4) Menú: Estadísticas
-            p(strong("Menú: Estadísticas")),
+            h3(strong("Menú: Estadísticas")),
             p("Muestra estadísticas descriptivas relacionadas al filtro realizado en la sección 'Mapas', 
                para profundizar en la información."),
             
             br(),
             
             # 5) Menú: Datos
-            p(strong("Menú: Datos")),
+            h3(strong("Menú: Datos")),
             p("Hay tres tipos de tablas:"),
+            tags$img(
+              src = "png/menu_datos.png", 
+              style = "max-width:800px; display:block; margin-bottom:20px; margin-top:10px;"
+            ),
             p("- Safetrack Camiones: muestra la información de Safetrack, filtrable por rango de fecha."),
             p("- Proyectos Clientes: muestra los proyectos según el archivo Tareas de DIMAL."),
             p("- Proyectos Cli-Camion: vincula, a modo predictivo, la ubicación de los camiones con los 
@@ -477,7 +505,7 @@ ui <- dashboardPage(
             
             tags$img(
               src = "png/ejemplo_tablas.png", 
-              style = "max-width:400px; display:block; margin-bottom:20px; margin-top:10px;"
+              style = "max-width:800px; display:block; margin-bottom:20px; margin-top:10px;"
             )
           )
         )
