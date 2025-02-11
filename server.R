@@ -203,10 +203,6 @@ server <- function(input, output, session) {
   })
 
 
-
-
-
-
   #--------------------------------------------------
   # ! Filtrar datos para la tabla final
   #--------------------------------------------------

@@ -368,9 +368,9 @@ ui <- dashboardPage(
             # 2) Cómo usarlo
             h3("COMO USARLO"),
             p("Hay tres tipos de menú con información pertinente:"),
-            p("1- Mapas"),
-            p("2- Estadísticas"),
-            p("3- Datos"),
+            p("Mapas"),
+            p("Estadísticas"),
+            p("Datos"),
             tags$img(
               src = "png/como_usarlo.png", 
               style = "max-width:200px; display:block; margin-bottom:20px; margin-top:10px;"
@@ -379,7 +379,7 @@ ui <- dashboardPage(
             br(),
             
             # 3) Sección: Mapas
-            h3("1- Mapas"),
+            h3("Menú: Mapa"),
             h4("Datos Safetrack"),            
             p(strong("Filtro: Rango de fechas:")),
             p("Se puede filtrar por rango de fechas. La app al comenzar siempre 
