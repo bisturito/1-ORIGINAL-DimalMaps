@@ -124,6 +124,7 @@ ui <- dashboardPage(
                 language = "es",
                 separator = " hasta "
               ),
+              p("Horarios desde las 7am a 18pm"),
               
               # 2) Mostrar camiones (sin la palabra "demora")
               checkboxInput("mostrar_demora", "Mostrar Camiones", value = TRUE),
