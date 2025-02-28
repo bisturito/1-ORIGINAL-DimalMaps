@@ -7,4 +7,3 @@ logs/*
 rsconnect/*
 *.log
 data/credentials.json
-.windsurfrules
