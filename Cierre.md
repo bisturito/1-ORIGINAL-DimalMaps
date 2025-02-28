@@ -51,9 +51,7 @@ El problema se origina en la forma en que se recogen y almacenan los datos. Aunq
 * **Contra:** Si se acumulan muchos orfanitos, el mapa puede llenarse de íconos raros, y puede meter presión al equipo para arreglarlo.
 * (Igual, eso podría ser bueno para que lo solucionen, no?).
 
-
 ---
-
 
 # Ubicaciones
 
@@ -181,4 +179,32 @@ Todo esto basado en los logs reales que vimos, manteniendo la privacidad de los 
 
 Nota de mara: Interesante e importante ver el tema del rendimiento para grandes volúmenes.- Lo tenemos en cabeza, otra también el histórico guardar.- Voy a consultar pero se puede dejar solo un mes para atras y los otros elliminarlos.- Alguna funcion para que tenga un tope de 90 días o 120 días puede ser.- Voy a verlo con la empresa
 
+- **Visualización de Rutas de Camiones**
+
+  - Implementar trazado de rutas para cada camión
+  - Agregar control para mostrar/ocultar rutas
+  - Colorear rutas según el camión
+  - Agregar animación del recorrido
+  - Implementar flechas direccionales
+  - Agregar estadísticas de recorrido (distancia, tiempo, paradas)
+
+Detalles de implementación:
+
+```r
+# Requerirá:
+library(leaflet)
+library(leaflet.extras)  # Para animaciones
+
+# Principales funciones a utilizar:
+# - addPolylines() para trazar rutas
+# - addArrows() para dirección
+# - addPlayback() para animación
+
+```
+
+
 ---
+
+---
+
+Informacion a tener en cuenta
