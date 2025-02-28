@@ -66,6 +66,7 @@ En la ultima llamada me dijiste que "no habia que actualizarlo" asi que por las 
 PD: si surgen dudas nuevamente de este tema de ubicaciones, aclararlas revisando la información, te pase la evidencia de todo lo sucedido, links al historial de github, captura de pantallas, explicacion en pdf, todo clarisimo de que sucede si haces dichos cambios, en resumen, lo unico que tenes que entender, es que si aplicas el cambio que me pasaste se van a agregar datos que borrabamos, el porque sucederia esta explicado en detalle.
 
 Despues, si decidis aplicar dicho cambio, vas a tener que cambiar el merge.py en el repositorio automatizable, donde haciamos la misma limpieza a ubicaciones, borrando las filas vacias de columna tareas (si no lo haces, se te va a borrar todo y vas a tener un problema ahi)(al igual que dependiendo lo que decidas hacer con el merge de los datos, cambiar tambien el merge en el .py)
+PD: Agregue en el repositorio el pdf "calidad de datos" donde se explica un poco mas en detalle esta informacion para aclarar dudas, y para que no se te pierda de slack!
 
 ---
 
