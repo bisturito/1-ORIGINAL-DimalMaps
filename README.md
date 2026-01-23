@@ -8,15 +8,15 @@ Este repositorio contiene los archivos de datos que alimentan la aplicación de 
 
 ## Estructura del Repositorio
 data/
-├── Limpia/ # Datos procesados y listos para uso
-│ ├── Ubicaciones_direcciones.xlsx # Base de clientes con coordenadas GPS
-│ ├── Tabla_Proyectos_Clientes.xlsx # Relación proyectos-clientes
-│ ├── Tareas-limpio.xlsx # Historial de tareas/visitas
-│ ├── lugares_pago.xlsx # Ubicaciones de lugares de pago
-│ └── ubi_empresa.xlsx # Ubicaciones de la empresa
+ ├── Limpia/ # Datos procesados y listos para uso//
+│ ├── Ubicaciones_direcciones.xlsx # Base de clientes con coordenadas GPS//
+│ ├── Tabla_Proyectos_Clientes.xlsx # Relación proyectos-clientes//
+│ ├── Tareas-limpio.xlsx # Historial de tareas/visitas//
+│ ├── lugares_pago.xlsx # Ubicaciones de lugares de pago//
+│ └── ubi_empresa.xlsx # Ubicaciones de la empresa//
 │
-├── BDDimal/ # Scripts de base de datos
-└── 0_ETL/ # Procesos ETL
+├── BDDimal/ # Scripts de base de datos//
+└── 0_ETL/ # Procesos ETL//
 
 
 ## Archivos de Datos Principales
